@@ -1,23 +1,69 @@
 package com.codemania.task_service.service;
 
+import com.codemania.task_service.model.Comment;
 import com.codemania.task_service.model.dto.CommentCreateDto;
 import com.codemania.task_service.model.dto.CommentDto;
 import com.codemania.task_service.model.dto.CommentUpdateDto;
+import com.codemania.task_service.model.mapper.CommentMapper;
+import com.codemania.task_service.repository.CommentRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
-public interface CommentService {
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class CommentService {
 
-    CommentDto create(CommentCreateDto dto);
+    private final CommentRepository commentRepository;
+    private final CommentMapper commentMapper;
+    private final TaskService taskService;
+
+    @Transactional
+    public CommentDto create(CommentCreateDto dto) {
+        Comment comment = commentMapper.toEntity(dto);
+        comment.setTask(taskService.loadEntityById(dto.getTaskId())); //как можно сделать лучше?
+        Comment commentCreated = commentRepository.save(comment);
+        log.debug("Create comment - {} success", commentCreated);
+        return commentMapper.toDto(commentCreated);
+    }
 
     @Transactional(readOnly = true)
-    CommentDto getById(Long id);
+    public CommentDto getById(Long id) {
+        Comment commentLoad = loadById(id);
+        return commentMapper.toDto(commentLoad);
+    }
 
     @Transactional(readOnly = true)
-    List<CommentDto> getByTaskId(Long taskId);
+    public List<CommentDto> getByTaskId(Long taskId) {
+        List<Comment> comments = commentRepository.findByTaskId(taskId);
+        return comments.stream().map(commentMapper::toDto).toList();
+    }
 
-    CommentDto update(CommentUpdateDto dto);
+    @Transactional
+    public CommentDto update(CommentUpdateDto dto) {
+        Comment commentLoad = loadById(dto.getId());
+        commentMapper.updateCommentFromDto(dto, commentLoad);
+        Comment commentSaved = commentRepository.save(commentLoad);
+        log.debug("Update comment - {} success ", commentSaved);
+        return commentMapper.toDto(commentSaved);
+    }
 
-    void deleteById(Long id);
+    @Transactional
+    public void deleteById(Long id) {
+        //TODO сделать через boolean
+//        boolean delted = commentRepository.deleteById(id);
+
+        commentRepository.deleteById(loadById(id).getId());
+        log.debug("Delete comment with id - {} is success", id);
+    }
+
+    private Comment loadById(Long id) {
+        return commentRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Comment with id - " + id + " no found"));
+
+    }
 }
