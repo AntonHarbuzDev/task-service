@@ -55,11 +55,13 @@ public class CommentService {
 
     @Transactional
     public void deleteById(Long id) {
-        //TODO сделать через boolean
-//        boolean delted = commentRepository.deleteById(id);
-
-        commentRepository.deleteById(loadById(id).getId());
-        log.debug("Delete comment with id - {} is success", id);
+        int deletedCount = commentRepository.deleteCommentById(id);
+        if  (deletedCount > 0) {
+            log.debug("Delete comment with id - {} is success", id);
+        } else {
+            log.debug("Comment with id {} not found", id);
+            throw new NoSuchElementException("Comment with id - " + id + " not found");
+        }
     }
 
     private Comment loadById(Long id) {

@@ -19,15 +19,18 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "task_id", insertable = false, updatable = false)
+    private Long taskId;
+
     @ToString.Exclude
     @ManyToOne
-    @JoinColumn(name = "taskId", referencedColumnName = "id")
+    @JoinColumn(name = "task_id", referencedColumnName = "id")
     private Task task;
 
     @Column(name = "content")
     private String content;
 
     @CreationTimestamp
-    @Column(name = "createdAt")
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 }

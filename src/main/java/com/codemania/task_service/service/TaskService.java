@@ -5,6 +5,7 @@ import com.codemania.task_service.model.dto.TaskCreateDto;
 import com.codemania.task_service.model.dto.TaskDto;
 import com.codemania.task_service.model.dto.TaskUpdateDto;
 import com.codemania.task_service.model.mapper.TaskMapper;
+import com.codemania.task_service.repository.CommentRepository;
 import com.codemania.task_service.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
     private final TaskMapper taskMapper;
+    private final CommentRepository commentRepository; // так себе решение
 
     @Transactional
     public TaskDto create(TaskCreateDto taskCreateDto) {
@@ -46,9 +48,15 @@ public class TaskService {
 
     @Transactional
     public void deleteById(Long id) {
-        loadById(id);
-        taskRepository.deleteById(id);
-        log.debug("Delete task with id - {} success", id);
+        int deletedCommentsCount = commentRepository.deleteCommentsByTaskId(id);
+        int deletedCount = taskRepository.deleteTaskById(id);
+        if (deletedCount > 0) {
+            log.debug("Deleted - {} comments", deletedCommentsCount);
+            log.debug("Delete task with id - {} success", id);
+        } else {
+            log.debug("Task id - {} no found", id);
+            throw new NoSuchElementException("Task with id - " + id + " no found");
+        }
     }
 
     @Transactional

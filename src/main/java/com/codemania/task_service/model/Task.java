@@ -44,6 +44,6 @@ public class Task {
     private LocalDateTime updatedAt;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "task", cascade = CascadeType.MERGE)
     private List<Comment> comments = new ArrayList<>();
 }
