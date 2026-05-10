@@ -1,5 +1,6 @@
 package com.codemania.task_service.service;
 
+import com.codemania.task_service.model.Status;
 import com.codemania.task_service.model.Task;
 import com.codemania.task_service.model.dto.TaskCreateDto;
 import com.codemania.task_service.model.dto.TaskDto;
@@ -26,6 +27,7 @@ public class TaskService {
     @Transactional
     public TaskDto create(TaskCreateDto taskCreateDto) {
         Task task = taskMapper.toEntity(taskCreateDto);
+        task.setStatus(Status.NEW);
         Task taskCreated = taskRepository.save(task);
         log.debug("Create task - {} success", taskCreated);
         return taskMapper.toDto(taskCreated);
