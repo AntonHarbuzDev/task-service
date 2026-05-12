@@ -1,19 +1,21 @@
 package com.codemania.task_service.service;
 
+import com.codemania.task_service.exception.EntityNotFoundException;
 import com.codemania.task_service.model.Status;
 import com.codemania.task_service.model.Task;
+import com.codemania.task_service.model.dto.CommentDto;
 import com.codemania.task_service.model.dto.TaskCreateDto;
 import com.codemania.task_service.model.dto.TaskDto;
 import com.codemania.task_service.model.dto.TaskUpdateDto;
+import com.codemania.task_service.model.mapper.CommentMapper;
 import com.codemania.task_service.model.mapper.TaskMapper;
-import com.codemania.task_service.repository.CommentRepository;
 import com.codemania.task_service.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.NoSuchElementException;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -22,7 +24,7 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
     private final TaskMapper taskMapper;
-    private final CommentRepository commentRepository; // так себе решение
+    private final CommentMapper commentMapper;
 
     @Transactional
     public TaskDto create(TaskCreateDto taskCreateDto) {
@@ -39,6 +41,13 @@ public class TaskService {
         return taskMapper.toDto(taskLoad);
     }
 
+    @Transactional(readOnly = true)
+    public List<CommentDto> getCommentsByTaskId(Long id) {
+        Task taskLoad = loadById(id);
+        return taskLoad.getComments().stream().map(commentMapper::toDto).toList();
+    }
+
+
     @Transactional
     public TaskDto update(TaskUpdateDto taskUpdateDto) {
         Task taskLoad = loadById(taskUpdateDto.getId());
@@ -50,15 +59,12 @@ public class TaskService {
 
     @Transactional
     public void deleteById(Long id) {
-        int deletedCommentsCount = commentRepository.deleteCommentsByTaskId(id);
         int deletedCount = taskRepository.deleteTaskById(id);
-        if (deletedCount > 0) {
-            log.debug("Deleted - {} comments", deletedCommentsCount);
-            log.debug("Delete task with id - {} success", id);
-        } else {
+        if (deletedCount == 0) {
             log.debug("Task id - {} no found", id);
-            throw new NoSuchElementException("Task with id - " + id + " no found");
+            throw new EntityNotFoundException("Task with id - " + id + " no found");
         }
+        log.debug("Task with id {} was deleted successfully", id);
     }
 
     @Transactional
@@ -67,6 +73,6 @@ public class TaskService {
     }
 
     private Task loadById(Long id) {
-        return taskRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Task with id - " + id + " no found"));
+        return taskRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Task with id - " + id + " no found"));
     }
 }

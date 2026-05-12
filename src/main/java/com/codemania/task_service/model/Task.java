@@ -5,7 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +15,7 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
+@NamedEntityGraph(name = "Task.comments", attributeNodes = @NamedAttributeNode("comments"))
 public class Task {
 
     @Id
@@ -37,11 +38,11 @@ public class Task {
 
     @CreationTimestamp
     @Column(name = "createdAt")
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @UpdateTimestamp
     @Column(name = "updatedAt")
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     @ToString.Exclude
     @OneToMany(mappedBy = "task", cascade = CascadeType.MERGE)

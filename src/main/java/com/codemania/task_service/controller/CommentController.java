@@ -9,10 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
-@RequestMapping("/comment")
+@RequestMapping("/comments")
 @RequiredArgsConstructor
 public class CommentController {
 
@@ -29,17 +27,13 @@ public class CommentController {
         return commentService.getById(id);
     }
 
-    @GetMapping("all/{taskId}")
-    public List<CommentDto> getAllByTaskId(@PathVariable Long taskId) {
-        return commentService.getByTaskId(taskId);
-    }
-
     @PutMapping
     public CommentDto update(@RequestBody @Valid CommentUpdateDto dto) {
         return commentService.update(dto);
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteById(@PathVariable Long id) {
         commentService.deleteById(id);
     }

@@ -18,5 +18,5 @@ CREATE TABLE IF NOT EXISTS comments
     task_id BIGINT NOT NULL,
     content TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_comments_tasks  FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE RESTRICT
+    CONSTRAINT fk_comments_tasks  FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE
 );
