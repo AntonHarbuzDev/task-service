@@ -1,9 +1,6 @@
 package com.codemania.task_service.controller;
 
-import com.codemania.task_service.model.dto.CommentDto;
-import com.codemania.task_service.model.dto.TaskCreateDto;
-import com.codemania.task_service.model.dto.TaskDto;
-import com.codemania.task_service.model.dto.TaskUpdateDto;
+import com.codemania.task_service.model.dto.*;
 import com.codemania.task_service.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +40,12 @@ public class TaskController {
     @PutMapping
     public TaskDto update(@RequestBody @Valid TaskUpdateDto dto) {
         log.debug("Get request for task update: TaskUpdateDto - {}", dto);
+        return taskService.update(dto);
+    }
+
+    @PatchMapping("/status")
+    public TaskDto updateStatus(@RequestBody @Valid TaskStatusUpdateDto dto) {
+        log.debug("Get request for task update: TaskStatusUpdateDto - {}", dto);
         return taskService.update(dto);
     }
 
