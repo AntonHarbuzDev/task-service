@@ -37,7 +37,7 @@ public class TaskService {
     }
 
     @Transactional(readOnly = true)
-    public TaskDto getById(Long id) {
+    public TaskDto getById(Long id) { //добавить редис
         Task taskLoad = loadById(id);
         return taskMapper.toDto(taskLoad);
     }
@@ -88,11 +88,6 @@ public class TaskService {
             throw new EntityNotFoundException("Task with id - " + id + " no found");
         }
         log.debug("Task with id {} was deleted successfully", id);
-    }
-
-    @Transactional
-    public Task loadEntityById(Long id) {
-        return loadById(id);
     }
 
     private Task loadById(Long id) {

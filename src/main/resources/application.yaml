@@ -43,4 +43,4 @@ logging:
 
 scheduled:
   interval:
-    send-pending: 0 */1 * * * ?
+    send-pending: 60000
