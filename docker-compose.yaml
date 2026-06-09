@@ -4,7 +4,6 @@ services:
   postgres_db:
     image: postgres:17
     container_name: postgres-codemania_taskService
-    restart: always
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
@@ -14,7 +13,20 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: redis-codemania_taskService
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -26,7 +38,7 @@ services:
     ports:
       - "2181:2181"
     healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "2181"]
+      test: [ "CMD", "nc", "-z", "localhost", "2181" ]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -53,11 +65,19 @@ services:
     depends_on:
       postgres_db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_db:5432/${DB_NAME}
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_CACHE_TYPE: redis
+      SPRING_CACHE_REDIS_TIME_TO_LIVE: 60000  # 60 секунд
+      SPRING_CACHE_REDIS_CACHE_NULL_VALUES: "true"
     ports:
       - "8080:8080"
 volumes:
   postgres_data:
+  redis_data:

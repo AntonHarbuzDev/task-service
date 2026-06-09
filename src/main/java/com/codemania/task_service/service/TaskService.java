@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,8 +37,10 @@ public class TaskService {
         return taskMapper.toDto(taskCreated);
     }
 
+    @Cacheable(value = "tasks", key = "#id")
     @Transactional(readOnly = true)
-    public TaskDto getById(Long id) { //добавить редис
+    public TaskDto getById(Long id) {
+        log.debug("Load task from DB: {}", id);
         Task taskLoad = loadById(id);
         return taskMapper.toDto(taskLoad);
     }

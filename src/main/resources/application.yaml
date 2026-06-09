@@ -30,6 +30,21 @@ spring:
         spring.json.add.type.headers: false
       retries: 3
       acks: 1
+  cache:
+    type: redis
+    redis:
+      time-to-live: 60000
+      cache-null-values: true
+  data:
+    redis:
+      host: localhost  # Для локального запуска (будет переопределено в docker)
+      port: 6379
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
 
 server:
   port: 8080
